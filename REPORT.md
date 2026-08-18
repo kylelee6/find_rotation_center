@@ -5,6 +5,7 @@
 구조적 한계가 무엇인지를 몬테카를로 시뮬레이션으로 검증한 기록이다.
 
 사용법은 [README.md](README.md) 참고. 이 문서는 실험 결과와 해석만 다룬다.
+브라우저에서 바로 실행해볼 수 있는 웹 데모는 **[tool.html](https://kylelee6.github.io/find_rotation_center/tool.html)** 참고.
 
 ---
 
@@ -196,4 +197,5 @@ python build_report.py
 원시 결과: [`multi_image_precision_result.json`](multi_image_precision_result.json),
 [`angle_precision_result.json`](angle_precision_result.json)
 실행 로그: [`logs/sim_log.txt`](logs/sim_log.txt), [`logs/sim_angle_log.txt`](logs/sim_angle_log.txt)
-인터랙티브 버전: [`rotation_center_multi_image_report.html`](rotation_center_multi_image_report.html) (다운로드 후 로컬에서 열기)
+인터랙티브 버전(라이브): https://kylelee6.github.io/find_rotation_center/report.html
+웹 데모(직접 실행): https://kylelee6.github.io/find_rotation_center/tool.html

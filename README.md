@@ -1,5 +1,9 @@
 # 회전중심 시뮬레이션 및 추정
 
+🔗 **웹에서 바로 보기**: [프로젝트 소개](https://kylelee6.github.io/find_rotation_center/) ·
+[웹 도구로 직접 실행](https://kylelee6.github.io/find_rotation_center/tool.html) ·
+[정밀도 분석 리포트](https://kylelee6.github.io/find_rotation_center/report.html)
+
 ## 설치
 
 ```bash
@@ -69,3 +73,14 @@ python estimate_rotation_center.py input.png rotated.png --output-dir result_5de
 
 스크립트: `simulate_multi_image_precision.py`(다른 각도 조합), `simulate_angle_precision.py`(같은 각도 반복),
 `make_charts.py`(차트 생성), `build_report.py`(인터랙티브 HTML 리포트 생성)
+
+## 4. 웹에서 바로 실행해보기
+
+파이썬 설치 없이 브라우저에서 바로 두 영상을 올려 회전각·중심을 계산해볼 수 있다:
+**[tool.html](https://kylelee6.github.io/find_rotation_center/tool.html)** — 모든 계산은
+OpenCV.js(WebAssembly)로 브라우저 안에서 실행되며, 이미지는 서버로 전송되지 않는다.
+
+웹 버전은 `estimate_rotation_center.py`의 핵심 아이디어(각도 탐색 → 평행이동 정합 → 중심 역산)를
+JavaScript로 재현한 시연용 버전이다. `matchTemplate`(정규상관) 기반 평행이동 탐색을 쓰고
+photometric least-squares 정밀화 단계는 생략했기 때문에, 파이썬 버전보다 정밀도가 낮다
+(예제 기준 오차 약 0.05°/12px 수준). 연구용 정밀 분석에는 파이썬 스크립트를 사용할 것.

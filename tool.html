@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>회전중심 추정기 — 브라우저에서 바로 실행</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1: #fcfcfb; --page: #f9f9f7; --text-primary: #0b0b0b;
+    --text-secondary: #52514e; --text-muted: #898781; --grid: #e1e0d9;
+    --axis: #c3c2b7; --series-1: #2a78d6; --series-2: #008300;
+    --border: rgba(11,11,11,0.10); --callout-bg: #f0efec;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { color-scheme: dark; --surface-1:#1a1a19; --page:#0d0d0d; --text-primary:#fff;
+      --text-secondary:#c3c2b7; --text-muted:#898781; --grid:#2c2c2a; --axis:#383835;
+      --series-1:#3987e5; --series-2:#008300; --border: rgba(255,255,255,0.10); --callout-bg:#22221f; }
+  }
+  * { box-sizing: border-box; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--page);
+    color: var(--text-primary); margin: 0; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 28px 20px 60px; }
+  h1 { font-size: 1.35rem; margin: 0 0 6px; }
+  .sub { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; margin: 0 0 20px; }
+  nav.top { font-size: 0.85rem; margin-bottom: 18px; }
+  nav.top a { color: var(--series-1); text-decoration: none; margin-right: 16px; }
+  nav.top a:hover { text-decoration: underline; }
+  .card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px; margin-bottom: 18px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 620px) { .grid2 { grid-template-columns: 1fr; } }
+  .drop { border: 1.5px dashed var(--axis); border-radius: 10px; padding: 16px; text-align: center;
+    cursor: pointer; transition: border-color .15s; position: relative; }
+  .drop:hover { border-color: var(--series-1); }
+  .drop input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .drop img { max-width: 100%; max-height: 160px; border-radius: 6px; display: block; margin: 8px auto 0; }
+  .drop .ph { color: var(--text-muted); font-size: 0.85rem; }
+  .label { font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; margin-bottom: 6px; display: block; }
+  .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  button { font: inherit; border-radius: 8px; border: 1px solid var(--border); cursor: pointer;
+    padding: 10px 16px; background: var(--series-1); color: white; font-weight: 600; }
+  button.secondary { background: transparent; color: var(--text-primary); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  input[type=number] { font: inherit; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--axis);
+    background: var(--surface-1); color: var(--text-primary); width: 90px; }
+  .progress-wrap { margin-top: 14px; display: none; }
+  .progress-bar-bg { background: var(--grid); border-radius: 6px; height: 8px; overflow: hidden; }
+  .progress-bar { background: var(--series-1); height: 100%; width: 0%; transition: width .1s; }
+  .progress-text { font-size: 0.8rem; color: var(--text-secondary); margin-top: 6px; font-variant-numeric: tabular-nums; }
+  .results { display: none; }
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 12px; margin-bottom: 16px; }
+  .stat { background: var(--callout-bg); border-radius: 10px; padding: 12px 14px; }
+  .stat .k { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px; }
+  .stat .v { font-size: 1.15rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  svg.diagram { width: 100%; height: auto; border-radius: 10px; background: var(--surface-1); border: 1px solid var(--border); }
+  .note { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6; }
+  .warn { background: #fff3cd; color: #664d03; border-radius: 8px; padding: 10px 12px; font-size: 0.85rem; margin-top: 10px; }
+  @media (prefers-color-scheme: dark) { .warn { background: #3a2f14; color: #ffdf8a; } }
+  .steps { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.9; }
+  code { background: var(--callout-bg); padding: 1px 5px; border-radius: 4px; font-size: 0.85em; }
+  .footer-note { font-size: 0.78rem; color: var(--text-muted); margin-top: 30px; line-height: 1.7; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="top">
+    <a href="index.html">&larr; 프로젝트 소개</a>
+    <a href="report.html">정밀도 분석 리포트</a>
+    <a href="https://github.com/kylelee6/find_rotation_center" target="_blank">GitHub 저장소</a>
+  </nav>
+
+  <h1>🔄 회전중심 추정기</h1>
+  <p class="sub">
+    같은 장면을 서로 다른 각도로 찍은 영상 두 장을 올리면, 두 영상 사이의 <b>회전각</b>과
+    <b>회전중심 좌표</b>를 계산합니다. 서버로 이미지를 전송하지 않고 이 브라우저 안에서
+    (OpenCV.js, WebAssembly) 전부 계산합니다.
+  </p>
+
+  <div class="card">
+    <div class="grid2">
+      <div>
+        <span class="label">1. 기준 영상 (회전 전)</span>
+        <label class="drop" id="dropRef">
+          <input type="file" id="fileRef" accept="image/*">
+          <div class="ph" id="phRef">클릭하거나 파일을 끌어놓으세요</div>
+          <img id="imgRef" style="display:none">
+        </label>
+      </div>
+      <div>
+        <span class="label">2. 회전된 영상</span>
+        <label class="drop" id="dropRot">
+          <input type="file" id="fileRot" accept="image/*">
+          <div class="ph" id="phRot">클릭하거나 파일을 끌어놓으세요</div>
+          <img id="imgRot" style="display:none">
+        </label>
+      </div>
+    </div>
+
+    <div class="row">
+      <button class="secondary" id="btnExample">📷 예제 이미지로 먼저 써보기</button>
+      <span class="note">이 저장소의 test.bmp / rotated_5deg.png (정답: 5.000°, 중심 (1234.5, 980.2))</span>
+    </div>
+
+    <div class="row">
+      <label class="label" style="margin:0">탐색 범위(px)
+        <input type="number" id="searchRadius" value="300" min="30" max="2000" step="10">
+      </label>
+      <span class="note">회전중심이 영상 밖으로 많이 벗어날수록 크게 설정하세요. 클수록 느려집니다.</span>
+    </div>
+
+    <div class="row">
+      <button id="btnRun" disabled>▶ 계산 시작</button>
+    </div>
+
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-bar-bg"><div class="progress-bar" id="progressBar"></div></div>
+      <div class="progress-text" id="progressText">대기 중</div>
+    </div>
+    <div id="warnBox"></div>
+  </div>
+
+  <div class="card results" id="resultsCard">
+    <h2 style="font-size:1.05rem;margin:0 0 14px">결과</h2>
+    <div class="stat-grid">
+      <div class="stat"><div class="k">회전각</div><div class="v" id="rAngle">–</div></div>
+      <div class="stat"><div class="k">중심 X</div><div class="v" id="rCx">–</div></div>
+      <div class="stat"><div class="k">중심 Y</div><div class="v" id="rCy">–</div></div>
+      <div class="stat"><div class="k">정합 점수(NCC)</div><div class="v" id="rScore">–</div></div>
+      <div class="stat"><div class="k">계산 시간</div><div class="v" id="rTime">–</div></div>
+    </div>
+    <svg class="diagram" id="diagram" viewBox="0 0 640 420"></svg>
+    <p class="note" id="diagramCaption"></p>
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:1.05rem;margin:0 0 10px">이 도구는 어떻게 동작하나요</h2>
+    <ol class="steps">
+      <li>두 영상을 그레이스케일로 바꾸고 밝기를 정규화합니다.</li>
+      <li>-10°~10° 범위를 성기게, 그 다음 가장 유력한 각도 주변을 촘촘하게 훑습니다(coarse-to-fine).</li>
+      <li>각 후보 각도마다 기준영상을 그 각도로 미리 돌려놓고, <code>matchTemplate</code>(정규상관, NCC)으로
+        회전영상과 가장 잘 맞는 평행이동을 찾습니다 — 서브픽셀 보정까지 포함합니다.</li>
+      <li>정합 점수(NCC)가 가장 높은 각도·평행이동을 채택합니다.</li>
+      <li>회전각과 평행이동으로부터 <code>(1-cosθ)·cx - sinθ·cy = tx</code>,
+        <code>sinθ·cx + (1-cosθ)·cy = ty</code> 연립방정식을 풀어 회전중심을 역산합니다.</li>
+    </ol>
+    <p class="note">
+      이 웹 버전은 시연을 위해 <a href="https://github.com/kylelee6/find_rotation_center/blob/main/estimate_rotation_center.py" target="_blank">estimate_rotation_center.py</a>의
+      핵심 아이디어(각도 탐색 → 평행이동 정합 → 중심 역산)를 브라우저에서 재현한 것입니다.
+      원본 파이썬 버전은 phase correlation과 광도(밝기) 보정까지 포함한 최소제곱 정밀화 단계가 추가로 있어
+      더 정밀합니다 — 연구용 정밀 분석에는 파이썬 버전과
+      <a href="report.html">정밀도 분석 리포트</a>를 참고하세요.
+    </p>
+  </div>
+
+  <p class="footer-note">
+    두 영상은 크기(가로×세로 픽셀)가 같아야 합니다. 모든 계산은 로컬 브라우저에서 실행되며 이미지는 어디로도 전송되지 않습니다.
+  </p>
+</div>
+
+<script src="https://docs.opencv.org/4.x/opencv.js"></script>
+<script>
+'use strict';
+
+function cvReady() {
+  return new Promise(resolve => {
+    if (typeof cv !== 'undefined' && cv.Mat) { resolve(); return; }
+    const iv = setInterval(() => {
+      if (typeof cv !== 'undefined' && cv.Mat) { clearInterval(iv); resolve(); }
+    }, 100);
+  });
+}
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+function setupDrop(dropId, fileId, imgId, phId, onLoaded) {
+  const drop = document.getElementById(dropId);
+  const input = document.getElementById(fileId);
+  const img = document.getElementById(imgId);
+  const ph = document.getElementById(phId);
+  input.addEventListener('change', () => {
+    if (!input.files || !input.files[0]) return;
+    const url = URL.createObjectURL(input.files[0]);
+    img.onload = () => { ph.style.display = 'none'; img.style.display = 'block'; onLoaded(img); };
+    img.src = url;
+  });
+}
+
+let refImg = null, rotImg = null;
+function checkReady() {
+  document.getElementById('btnRun').disabled = !(refImg && rotImg);
+}
+setupDrop('dropRef','fileRef','imgRef','phRef', img => { refImg = img; checkReady(); });
+setupDrop('dropRot','fileRot','imgRot','phRot', img => { rotImg = img; checkReady(); });
+
+document.getElementById('btnExample').addEventListener('click', () => {
+  const ir = document.getElementById('imgRef'), it = document.getElementById('imgRot');
+  const phr = document.getElementById('phRef'), pht = document.getElementById('phRot');
+  let pending = 2;
+  function done() { if (--pending === 0) checkReady(); }
+  ir.onload = () => { phr.style.display='none'; ir.style.display='block'; refImg = ir; done(); };
+  it.onload = () => { pht.style.display='none'; it.style.display='block'; rotImg = it; done(); };
+  ir.src = 'test.bmp';
+  it.src = 'rotated_5deg.png';
+});
+
+function imgToGrayFloat(imgEl) {
+  const c = document.createElement('canvas');
+  c.width = imgEl.naturalWidth; c.height = imgEl.naturalHeight;
+  c.getContext('2d').drawImage(imgEl, 0, 0);
+  const rgba = cv.imread(c);
+  const gray = new cv.Mat();
+  cv.cvtColor(rgba, gray, cv.COLOR_RGBA2GRAY);
+  rgba.delete();
+
+  // 1~99 percentile 스트레치 (히스토그램 기반)
+  const hist = new Array(256).fill(0);
+  const data = gray.data;
+  for (let i = 0; i < data.length; i++) hist[data[i]]++;
+  const total = data.length;
+  let cum = 0, lo = 0, hi = 255;
+  for (let i = 0; i < 256; i++) { cum += hist[i]; if (cum >= total * 0.01) { lo = i; break; } }
+  cum = 0;
+  for (let i = 255; i >= 0; i--) { cum += hist[i]; if (cum >= total * 0.01) { hi = i; break; } }
+  if (hi <= lo) { lo = 0; hi = 255; }
+
+  const grayF = new cv.Mat();
+  gray.convertTo(grayF, cv.CV_32F, 1.0 / Math.max(1, hi - lo), -lo / Math.max(1, hi - lo));
+  gray.delete();
+  const blurred = new cv.Mat();
+  cv.GaussianBlur(grayF, blurred, new cv.Size(0,0), 0.8, 0.8, cv.BORDER_REPLICATE);
+  grayF.delete();
+  return blurred; // CV_32F, 대략 0~1 범위 (범위를 넘는 값도 있을 수 있음, 정규화 안 함)
+}
+
+function warpAffineFloat(mat, M, w, h) {
+  const out = new cv.Mat();
+  cv.warpAffine(mat, out, M, new cv.Size(w, h), cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+  return out;
+}
+
+// 후보 각도 하나 평가: matchTemplate 기반 평행이동 탐색 + 서브픽셀 보정
+function evalAngle(ref, target, angleDeg, S, w, h) {
+  const M = cv.getRotationMatrix2D(new cv.Point(w/2, h/2), angleDeg, 1.0);
+  const rotatedRef = warpAffineFloat(ref, M, w, h);
+
+  // 회전 후 생기는 검은 모서리(BORDER_CONSTANT)가 정합 점수를 왜곡하지 않도록
+  // 템플릿에서 가장자리를 살짝 잘라낸다 (python의 read_mask 테두리 제외와 동일한 의도).
+  const margin = Math.max(4, Math.round(0.02 * Math.min(w, h)));
+  const roi = new cv.Rect(margin, margin, w - 2*margin, h - 2*margin);
+  const croppedRef = rotatedRef.roi(roi);
+
+  const padded = new cv.Mat();
+  cv.copyMakeBorder(target, padded, S, S, S, S, cv.BORDER_CONSTANT, new cv.Scalar());
+
+  const result = new cv.Mat();
+  cv.matchTemplate(padded, croppedRef, result, cv.TM_CCOEFF_NORMED);
+  const mm = cv.minMaxLoc(result);
+  const px = mm.maxLoc.x, py = mm.maxLoc.y;
+
+  let dx = 0, dy = 0;
+  if (px > 0 && px < result.cols - 1) {
+    const l = result.floatAt(py, px-1), c0 = result.floatAt(py, px), r = result.floatAt(py, px+1);
+    const denom = l - 2*c0 + r;
+    if (Math.abs(denom) > 1e-9) dx = 0.5 * (l - r) / denom;
+  }
+  if (py > 0 && py < result.rows - 1) {
+    const u = result.floatAt(py-1, px), c1 = result.floatAt(py, px), d = result.floatAt(py+1, px);
+    const denom2 = u - 2*c1 + d;
+    if (Math.abs(denom2) > 1e-9) dy = 0.5 * (u - d) / denom2;
+  }
+
+  const shiftX = (px + dx) - S - margin;
+  const shiftY = (py + dy) - S - margin;
+  const tx = M.doubleAt(0,2) + shiftX;
+  const ty = M.doubleAt(1,2) + shiftY;
+  const score = mm.maxVal;
+
+  M.delete(); rotatedRef.delete(); croppedRef.delete(); padded.delete(); result.delete();
+  return { angle: angleDeg, tx, ty, score };
+}
+
+function centerFromAngleTranslation(angleDeg, tx, ty) {
+  const th = angleDeg * Math.PI / 180;
+  const c = Math.cos(th), s = Math.sin(th);
+  const a11 = 1-c, a12 = -s, a21 = s, a22 = 1-c;
+  const det = a11*a22 - a12*a21;
+  if (Math.abs(det) < 1e-9) return null;
+  const cx = (a22*tx - a12*ty) / det;
+  const cy = (a11*ty - a21*tx) / det;
+  return { cx, cy };
+}
+
+async function runEstimation() {
+  const btn = document.getElementById('btnRun');
+  btn.disabled = true;
+  document.getElementById('warnBox').innerHTML = '';
+  document.getElementById('resultsCard').style.display = 'none';
+  const progressWrap = document.getElementById('progressWrap');
+  const progressBar = document.getElementById('progressBar');
+  const progressText = document.getElementById('progressText');
+  progressWrap.style.display = 'block';
+
+  const w = refImg.naturalWidth, h = refImg.naturalHeight;
+  if (w !== rotImg.naturalWidth || h !== rotImg.naturalHeight) {
+    document.getElementById('warnBox').innerHTML =
+      '<div class="warn">두 영상의 크기가 다릅니다 (' + w + '×' + h + ' vs ' +
+      rotImg.naturalWidth + '×' + rotImg.naturalHeight + '). 같은 크기의 영상을 사용하세요.</div>';
+    progressWrap.style.display = 'none';
+    btn.disabled = false;
+    return;
+  }
+
+  const S = Math.max(30, Math.min(2000, parseInt(document.getElementById('searchRadius').value, 10) || 300));
+  const t0 = performance.now();
+
+  const ref = imgToGrayFloat(refImg);
+  const target = imgToGrayFloat(rotImg);
+
+  const coarseStep = 0.5, coarseMin = -10, coarseMax = 10;
+  const coarseAngles = [];
+  for (let a = coarseMin; a <= coarseMax + 1e-9; a += coarseStep) coarseAngles.push(a);
+  const fineStep = 0.05, fineRange = 0.6;
+
+  const totalSteps = coarseAngles.length + Math.round((2*fineRange)/fineStep) + 2;
+  let step = 0;
+  function bump(label) {
+    step++;
+    const pct = Math.min(100, Math.round(100*step/totalSteps));
+    progressBar.style.width = pct + '%';
+    progressText.textContent = pct + '% — ' + label;
+  }
+
+  let best = null;
+  for (const a of coarseAngles) {
+    const r = evalAngle(ref, target, a, S, w, h);
+    if (!best || r.score > best.score) best = r;
+    bump('각도 탐색(성긴 단계) ' + a.toFixed(2) + '°  최고점수=' + best.score.toFixed(4));
+    if (step % 4 === 0) await sleep(0);
+  }
+
+  const fineCenter = best.angle;
+  for (let a = fineCenter - fineRange; a <= fineCenter + fineRange + 1e-9; a += fineStep) {
+    const r = evalAngle(ref, target, a, S, w, h);
+    if (r.score > best.score) best = r;
+    bump('각도 탐색(정밀 단계) ' + a.toFixed(3) + '°  최고점수=' + best.score.toFixed(4));
+    if (step % 4 === 0) await sleep(0);
+  }
+
+  ref.delete(); target.delete();
+
+  const elapsed = (performance.now() - t0) / 1000;
+  const centerResult = centerFromAngleTranslation(best.angle, best.tx, best.ty);
+
+  progressBar.style.width = '100%';
+  progressText.textContent = '완료';
+  await sleep(150);
+  progressWrap.style.display = 'none';
+  btn.disabled = false;
+
+  document.getElementById('rAngle').textContent = best.angle.toFixed(3) + '°';
+  document.getElementById('rScore').textContent = best.score.toFixed(4);
+  document.getElementById('rTime').textContent = elapsed.toFixed(1) + 's';
+
+  if (!centerResult) {
+    document.getElementById('rCx').textContent = '—';
+    document.getElementById('rCy').textContent = '—';
+    document.getElementById('warnBox').innerHTML =
+      '<div class="warn">추정된 회전각(' + best.angle.toFixed(3) + '°)이 0에 너무 가까워 중심을 안정적으로 계산할 수 없습니다. ' +
+      '3~8° 범위의 회전 영상을 사용하는 것을 권장합니다.</div>';
+    document.getElementById('resultsCard').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('rCx').textContent = centerResult.cx.toFixed(2) + ' px';
+  document.getElementById('rCy').textContent = centerResult.cy.toFixed(2) + ' px';
+  drawDiagram(w, h, centerResult.cx, centerResult.cy);
+  document.getElementById('resultsCard').style.display = 'block';
+}
+
+function drawDiagram(w, h, cx, cy) {
+  const svg = document.getElementById('diagram');
+  const caption = document.getElementById('diagramCaption');
+  const pad = 40;
+  const viewW = 640, viewH = 420;
+  const minX = Math.min(0, cx) - 0.08*w, maxX = Math.max(w, cx) + 0.08*w;
+  const minY = Math.min(0, cy) - 0.08*h, maxY = Math.max(h, cy) + 0.08*h;
+  const spanX = maxX - minX, spanY = maxY - minY;
+  const scale = Math.min((viewW - 2*pad) / spanX, (viewH - 2*pad) / spanY);
+  const ox = pad - minX*scale;
+  const oy = pad - minY*scale;
+  const X = x => ox + x*scale;
+  const Y = y => oy + y*scale;
+
+  const dist = Math.hypot(cx - w/2, cy - h/2);
+  const outside = cx < 0 || cy < 0 || cx > w || cy > h;
+
+  let s = '';
+  s += `<rect x="0" y="0" width="${viewW}" height="${viewH}" fill="var(--surface-1)"/>`;
+  // image rect
+  s += `<rect x="${X(0)}" y="${Y(0)}" width="${w*scale}" height="${h*scale}" fill="none" stroke="var(--series-1)" stroke-width="2"/>`;
+  s += `<text x="${X(0)}" y="${Y(0)-8}" font-size="12" fill="var(--text-secondary)">영상 (${w}×${h})</text>`;
+  // image center marker
+  s += `<circle cx="${X(w/2)}" cy="${Y(h/2)}" r="3" fill="var(--text-muted)"/>`;
+  s += `<text x="${X(w/2)+6}" y="${Y(h/2)+4}" font-size="11" fill="var(--text-muted)">영상중심</text>`;
+  // connecting line
+  s += `<line x1="${X(w/2)}" y1="${Y(h/2)}" x2="${X(cx)}" y2="${Y(cy)}" stroke="var(--axis)" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+  // rotation center marker
+  s += `<circle cx="${X(cx)}" cy="${Y(cy)}" r="6" fill="none" stroke="var(--series-2)" stroke-width="2.5"/>`;
+  s += `<line x1="${X(cx)-10}" y1="${Y(cy)}" x2="${X(cx)+10}" y2="${Y(cy)}" stroke="var(--series-2)" stroke-width="1.5"/>`;
+  s += `<line x1="${X(cx)}" y1="${Y(cy)-10}" x2="${X(cx)}" y2="${Y(cy)+10}" stroke="var(--series-2)" stroke-width="1.5"/>`;
+  s += `<text x="${X(cx)+10}" y="${Y(cy)-10}" font-size="12" font-weight="700" fill="var(--series-2)">회전중심 (${cx.toFixed(1)}, ${cy.toFixed(1)})</text>`;
+  svg.innerHTML = s;
+
+  caption.textContent = outside
+    ? `추정된 회전중심이 영상 프레임 밖에 있습니다 (영상 중심으로부터 ${dist.toFixed(1)}px 떨어짐). 실제 장비에서는 흔한 경우입니다.`
+    : `추정된 회전중심은 영상 프레임 안에 있습니다 (영상 중심으로부터 ${dist.toFixed(1)}px 떨어짐).`;
+}
+
+document.getElementById('btnRun').addEventListener('click', () => {
+  cvReady().then(runEstimation);
+});
+</script>
+</body>
+</html>

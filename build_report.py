@@ -164,7 +164,12 @@ def fmt_table_compare():
     return "\n".join(rows)
 
 
-html = f"""<title>영상 쌍 개수에 따른 회전중심·회전각 추정 정밀도</title>
+html = f"""<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>영상 쌍 개수에 따른 회전중심·회전각 추정 정밀도</title>
 <style>
   .viz-root {{
     color-scheme: light;
@@ -264,9 +269,18 @@ html = f"""<title>영상 쌍 개수에 따른 회전중심·회전각 추정 정
   .img-grid figure {{ margin: 0; }}
   .img-grid img {{ width: 100%; border-radius: 8px; border: 1px solid var(--border); display: block; }}
   .img-grid figcaption {{ font-size: 0.78rem; color: var(--text-muted); margin-top: 6px; text-align: center; }}
+  nav.top {{ font-size: 0.85rem; margin-bottom: 18px; }}
+  nav.top a {{ color: var(--series-1); text-decoration: none; margin-right: 16px; }}
+  nav.top a:hover {{ text-decoration: underline; }}
 </style>
-
+</head>
+<body>
 <div class="viz-root">
+  <nav class="top">
+    <a href="index.html">&larr; 프로젝트 소개</a>
+    <a href="tool.html">웹에서 직접 실행해보기</a>
+    <a href="https://github.com/kylelee6/find_rotation_center" target="_blank">GitHub 저장소</a>
+  </nav>
   <h1>영상 쌍 개수에 따른 회전중심 · 회전각 추정 정밀도</h1>
   <p class="sub">
     test.bmp 1장을 참 장면으로 두고 참 회전중심 (1234.5, 980.2) px를 기준으로 시뮬레이션.
@@ -367,8 +381,10 @@ html = f"""<title>영상 쌍 개수에 따른 회전중심·회전각 추정 정
     표준편차가 착실히 줄어든다(다만 편향 바닥은 여전히 존재).
   </p>
 </div>
+</body>
+</html>
 """
 
-out_path = HERE / "rotation_center_multi_image_report.html"
+out_path = HERE / "report.html"
 out_path.write_text(html, encoding="utf-8")
 print(f"[OK] wrote {out_path} ({len(html)} chars)")
