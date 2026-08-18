@@ -1,0 +1,23 @@
+{
+  "input": "test.bmp",
+  "output": "rotated_5deg.png",
+  "width": 640,
+  "height": 480,
+  "angle_deg": 5.0,
+  "center_x_px": 1234.5,
+  "center_y_px": 980.2,
+  "matrix_2x3": [
+    [
+      0.9961946980917455,
+      0.08715574274765817,
+      -80.73241489942728
+    ],
+    [
+      -0.08715574274765817,
+      0.9961946980917455,
+      111.32372139890646
+    ]
+  ],
+  "interpolation": "cubic",
+  "border_mode": "reflect"
+}

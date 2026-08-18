@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" font-family="system-ui, -apple-system, Segoe UI, sans-serif">
+<rect x="0" y="0" width="640" height="420" fill="#fcfcfb"/>
+<style>
+.grid{stroke:#e1e0d9;stroke-width:1} .axis{stroke:#c3c2b7;stroke-width:1}
+.tick{fill:#898781;font-size:12px} .lbl{fill:#52514e;font-size:13px}
+.leg{fill:#52514e;font-size:12.5px}
+</style>
+<line class="grid" x1="72" y1="364.0" x2="610" y2="364.0"/>
+<text class="tick" x="64" y="368.0" text-anchor="end">0.01</text>
+<line class="grid" x1="72" y1="244.3" x2="610" y2="244.3"/>
+<text class="tick" x="64" y="248.3" text-anchor="end">0.014</text>
+<line class="grid" x1="72" y1="154.8" x2="610" y2="154.8"/>
+<text class="tick" x="64" y="158.8" text-anchor="end">0.018</text>
+<line class="grid" x1="72" y1="83.4" x2="610" y2="83.4"/>
+<text class="tick" x="64" y="87.4" text-anchor="end">0.022</text>
+<line class="grid" x1="72" y1="24.0" x2="610" y2="24.0"/>
+<text class="tick" x="64" y="28.0" text-anchor="end">0.026</text>
+<line class="axis" x1="72" y1="364" x2="610" y2="364"/>
+<line class="axis" x1="72" y1="24" x2="72" y2="364"/>
+<text class="tick" x="72.0" y="382.0" text-anchor="middle">1</text>
+<text class="tick" x="222.1" y="382.0" text-anchor="middle">2</text>
+<text class="tick" x="309.9" y="382.0" text-anchor="middle">3</text>
+<text class="tick" x="420.5" y="382.0" text-anchor="middle">5</text>
+<text class="tick" x="522.2" y="382.0" text-anchor="middle">8</text>
+<text class="tick" x="610.0" y="382.0" text-anchor="middle">12</text>
+<text class="lbl" x="341.0" y="410" text-anchor="middle">같은 각도(5°) N회 반복촬영</text>
+<text class="lbl" x="-194.0" y="18" transform="rotate(-90)" text-anchor="middle">각도 추정 표준편차 [deg]</text>
+<polyline points="72.0,69.8 222.1,128.1 309.9,207.4 420.5,262.2 522.2,315.0 610.0,332.1" fill="none" stroke="#008300" stroke-width="2.2"/>
+<circle cx="72.0" cy="69.8" r="4.2" fill="#008300"/>
+<circle cx="222.1" cy="128.1" r="4.2" fill="#008300"/>
+<circle cx="309.9" cy="207.4" r="4.2" fill="#008300"/>
+<circle cx="420.5" cy="262.2" r="4.2" fill="#008300"/>
+<circle cx="522.2" cy="315.0" r="4.2" fill="#008300"/>
+<circle cx="610.0" cy="332.1" r="4.2" fill="#008300"/>
+<polyline points="72.0,69.8 222.1,193.1 309.9,265.3 420.5,356.1 522.2,439.8 610.0,511.9" fill="none" stroke="#898781" stroke-width="2.2" stroke-dasharray="5 5"/>
+<line x1="80" y1="18" x2="98" y2="18" stroke="#008300" stroke-width="3"/>
+<text class="leg" x="104" y="22">표준편차</text>
+<line x1="270" y1="18" x2="288" y2="18" stroke="#898781" stroke-width="2" stroke-dasharray="5 5"/>
+<text class="leg" x="294" y="22">이론 1/√N</text>
+</svg>

@@ -1,0 +1,43 @@
+[trial 1/30] done, elapsed=13.3s
+[trial 2/30] done, elapsed=26.1s
+[trial 3/30] done, elapsed=39.1s
+[trial 4/30] done, elapsed=52.6s
+[trial 5/30] done, elapsed=66.2s
+[trial 6/30] done, elapsed=81.8s
+[trial 7/30] done, elapsed=97.6s
+[trial 8/30] done, elapsed=113.2s
+[trial 9/30] done, elapsed=128.8s
+[trial 10/30] done, elapsed=144.4s
+[trial 11/30] done, elapsed=158.4s
+[trial 12/30] done, elapsed=173.5s
+[trial 13/30] done, elapsed=188.7s
+[trial 14/30] done, elapsed=203.8s
+[trial 15/30] done, elapsed=219.1s
+[trial 16/30] done, elapsed=235.3s
+[trial 17/30] done, elapsed=250.6s
+[trial 18/30] done, elapsed=265.9s
+[trial 19/30] done, elapsed=280.9s
+[trial 20/30] done, elapsed=296.4s
+[trial 21/30] done, elapsed=314.2s
+[trial 22/30] done, elapsed=329.6s
+[trial 23/30] done, elapsed=345.1s
+[trial 24/30] done, elapsed=361.4s
+[trial 25/30] done, elapsed=376.4s
+[trial 26/30] done, elapsed=392.7s
+[trial 27/30] done, elapsed=408.0s
+[trial 28/30] done, elapsed=423.1s
+[trial 29/30] done, elapsed=438.8s
+[trial 30/30] done, elapsed=454.4s
+
+===== 동일 각도(5도) N회 반복촬영 평균 정밀도 =====
+  N | angle std[deg]  angle RMSE[deg] | center std_x center std_y  center RMSE |  1/sqrt(N) 예측(angle)
+  1 |       0.022860         0.025252 |       4.6007       3.4297       6.3798 |             0.022860
+  2 |       0.019406         0.024241 |       3.9270       2.9222       6.1917 |             0.016164
+  3 |       0.015530         0.018511 |       3.1448       2.3382       4.7426 |             0.013198
+  5 |       0.013312         0.017291 |       2.6815       1.9851       4.4517 |             0.010223
+  8 |       0.011478         0.016633 |       2.3141       1.7148       4.2976 |             0.008082
+ 12 |       0.010938         0.016633 |       2.1883       1.6376       4.3069 |             0.006599
+
+[OK] 결과 저장: angle_precision_result.json
+[OK] 총 소요시간: 454.4s
+EXIT_CODE=0

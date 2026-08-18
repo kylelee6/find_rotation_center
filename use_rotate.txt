@@ -1,0 +1,44 @@
+pip install opencv-python numpy scipy
+pip install -r requirements.txt
+
+(piezo_env) C:\SEMICS_PJT\Algorithm\회전중심구하기>C:\Users\kjlee\anaconda3\Scripts\conda.exe install -p C:\Users\kjlee\anaconda3\envs\piezo_env -c conda-forge opencv numpy scipy pip --force-reinstall
+
+
+
+(piezo_env) C:\SEMICS_PJT\Algorithm\회전중심구하기>python rotate_image_about_center.py test.bmp rotated_5deg.png --angle 5.0 --cx 1234.5 --cy 980.2 --save-matrix truth.json
+(piezo_env) C:\SEMICS_PJT\Algorithm\회전중심구하기>python estimate_rotation_center.py test.bmp rotated_5deg.png --output-dir result_5deg
+
+
+
+(piezo_env) C:\SEMICS_PJT\Algorithm\회전중심구하기>python rotate_image_about_center.py test.bmp rotated_5deg.png --angle 5.0 --cx 1234.5 --cy 980.2 --save-matrix truth.json
+[OK] input      : test.bmp
+[OK] output     : rotated_5deg.png
+[OK] image size : 640 x 480
+[OK] angle      : 5.000000000 deg
+[OK] center     : (1234.500000000, 980.200000000) px
+[OK] affine matrix:
+[[ 9.96194698e-01  8.71557427e-02 -8.07324149e+01]
+ [-8.71557427e-02  9.96194698e-01  1.11323721e+02]]
+[OK] metadata    : truth.json
+
+
+(piezo_env) C:\SEMICS_PJT\Algorithm\회전중심구하기>python estimate_rotation_center.py test.bmp rotated_5deg.png --output-dir result_5deg
+[Global initialization]
+  angle       : 5.000000000 deg
+  translation : (-80.746112407, 111.332784256) px
+  center      : (1234.596938025, 980.361405889) px
+  overlap NCC : 0.999864682537
+  phase resp. : 0.720768089294
+
+[Final result]
+  angle       : 5.000344401 deg
+  translation : (-80.737063206, 111.327195467) px
+  center_x    : 1234.449539265 px
+  center_y    : 980.191218614 px
+  gain        : 0.998827811
+  offset      : 0.000324127
+  RMSE        : 0.001848939005
+  valid ratio : 0.753333
+
+[OK] 결과 폴더: result_5deg
+

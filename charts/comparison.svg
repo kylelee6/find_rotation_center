@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" font-family="system-ui, -apple-system, Segoe UI, sans-serif">
+<rect x="0" y="0" width="640" height="420" fill="#fcfcfb"/>
+<style>
+.grid{stroke:#e1e0d9;stroke-width:1} .axis{stroke:#c3c2b7;stroke-width:1}
+.tick{fill:#898781;font-size:12px} .lbl{fill:#52514e;font-size:13px}
+.leg{fill:#52514e;font-size:12.5px}
+</style>
+<line class="grid" x1="72" y1="364.0" x2="610" y2="364.0"/>
+<text class="tick" x="64" y="368.0" text-anchor="end">0.5</text>
+<line class="grid" x1="72" y1="274.7" x2="610" y2="274.7"/>
+<text class="tick" x="64" y="278.7" text-anchor="end">1.0</text>
+<line class="grid" x1="72" y1="185.4" x2="610" y2="185.4"/>
+<text class="tick" x="64" y="189.4" text-anchor="end">2.0</text>
+<line class="grid" x1="72" y1="96.1" x2="610" y2="96.1"/>
+<text class="tick" x="64" y="100.1" text-anchor="end">4.0</text>
+<line class="grid" x1="72" y1="24.0" x2="610" y2="24.0"/>
+<text class="tick" x="64" y="28.0" text-anchor="end">7.0</text>
+<line class="axis" x1="72" y1="364" x2="610" y2="364"/>
+<line class="axis" x1="72" y1="24" x2="72" y2="364"/>
+<text class="tick" x="72.0" y="382.0" text-anchor="middle">1</text>
+<text class="tick" x="222.1" y="382.0" text-anchor="middle">2</text>
+<text class="tick" x="309.9" y="382.0" text-anchor="middle">3</text>
+<text class="tick" x="420.5" y="382.0" text-anchor="middle">5</text>
+<text class="tick" x="522.2" y="382.0" text-anchor="middle">8</text>
+<text class="tick" x="610.0" y="382.0" text-anchor="middle">12</text>
+<text class="lbl" x="341.0" y="410" text-anchor="middle">사용한 영상 장수 N</text>
+<text class="lbl" x="-194.0" y="18" transform="rotate(-90)" text-anchor="middle">회전중심 RMSE [px]</text>
+<polyline points="72.0,153.8 222.1,251.0 309.9,290.2 420.5,286.9 522.2,325.3 610.0,348.7" fill="none" stroke="#008300" stroke-width="2.2"/>
+<circle cx="72.0" cy="153.8" r="4.2" fill="#008300"/>
+<circle cx="222.1" cy="251.0" r="4.2" fill="#008300"/>
+<circle cx="309.9" cy="290.2" r="4.2" fill="#008300"/>
+<circle cx="420.5" cy="286.9" r="4.2" fill="#008300"/>
+<circle cx="522.2" cy="325.3" r="4.2" fill="#008300"/>
+<circle cx="610.0" cy="348.7" r="4.2" fill="#008300"/>
+<polyline points="72.0,36.0 222.1,39.8 309.9,74.2 420.5,82.3 522.2,86.9 610.0,86.6" fill="none" stroke="#2a78d6" stroke-width="2.2"/>
+<circle cx="72.0" cy="36.0" r="4.2" fill="#2a78d6"/>
+<circle cx="222.1" cy="39.8" r="4.2" fill="#2a78d6"/>
+<circle cx="309.9" cy="74.2" r="4.2" fill="#2a78d6"/>
+<circle cx="420.5" cy="82.3" r="4.2" fill="#2a78d6"/>
+<circle cx="522.2" cy="86.9" r="4.2" fill="#2a78d6"/>
+<circle cx="610.0" cy="86.6" r="4.2" fill="#2a78d6"/>
+<line x1="80" y1="18" x2="98" y2="18" stroke="#008300" stroke-width="3"/>
+<text class="leg" x="104" y="22">다른 각도 N장 (joint LS)</text>
+<line x1="270" y1="18" x2="288" y2="18" stroke="#2a78d6" stroke-width="3"/>
+<text class="leg" x="294" y="22">같은 각도(5°) N장 반복평균</text>
+</svg>
